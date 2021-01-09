@@ -1,46 +1,51 @@
+import os
 import argparse
 import csv
 import openpyxl
 
 class convertCvs(object):
     _import_file = ''
-    _eksport_file = 'medlemsliste'
-    _eksport_format = 'xlsx'
+    _export_file = ''
+    _export_format = 'xlsx'
     _parse_args: object
 
     def __init__(self):
-        if __name__ == "__main__":
-            self._parse_args()
+        if __name__ == "__main__": self._parse_args()
 
     def _parse_args(self, args=None):
-        parser = argparse.ArgumentParser(prog="Medlemsliste konverting", description='Konvertere cvs til xlts')
+        parser = argparse.ArgumentParser(prog="Medlemsliste konverting", description='Konvertere cvs til xlsx')
         parser.add_argument('--import-file', type=str, help='importer fil')
-        parser.add_argument('--eksport-excel-2007', action='store_false', help='eksport format')
+        parser.add_argument('--import-directory', type=str, help='importer all filer')
+        parser.add_argument('--export-file', type=str, help='eksporter filnavn uden filtypenavnet')
+        parser.add_argument('--eksport-excel-2007', action='store_true', help='eksport format')
         self._parse_args = parser.parse_args(args=args)
 
     def set_import_file(self, file):
         self._import_file = file
 
-    def set_eksport_file(self, file):
-        self._eksport_file = file
+    def set_export_file(self, file):
+        self._export_file = file
 
     def set_export_formet(self, file_format):
         self._eksport_format = file_format
 
-    def run(self):
-        if self._parse_args.import_file:
-            self.set_import_file(self._parse_args.import_file)
+    def convert_files_in_folder(self, directory, extension='csv'):
+        for f in os.listdir(directory):
 
-        if self._eksport_format == 'xlsx':
+            if f.endswith('.' + extension):
+                self.convert_csv_to_xlsx(directory + '/' + f)
+
+    def convert_csv_to_xlsx(self, file):
             wb = openpyxl.Workbook()
             ws = wb.active
 
-            with open(self._import_file) as f:
+            with open(file) as f:
                 reader = csv.reader(f, delimiter='\t')
                 for row in reader:
                     ws.append(row)
 
-            ws.auto_filter.ref = "A1:H1"
+            ws.auto_filter.ref = "A1:K1"
+
             for cell in ws["1"]:
                 cell.font = openpyxl.styles.Font(bold=True,)
 
@@ -52,7 +57,25 @@ class convertCvs(object):
             for col, value in dims.items():
                 ws.column_dimensions[col].width = value
 
-            wb.save(self._eksport_file + '.' + self._eksport_format)
+            export_file = os.path.splitext(os.path.basename(file))[0] if self._export_file == '' else self._export_file
+
+            wb.save(export_file + '.' + self._export_format)
+
+    def run(self):
+        if self._parse_args.import_file:
+            self.set_import_file(self._parse_args.import_file)
+
+        if self._parse_args.export_file:
+            self.set_import_file(self._parse_args.eksport_file)
+
+        if self._import_file != '' and self._export_file == '':
+            self._export_file = self._import_file
+
+        if self._export_format == 'xlsx':
+            if self._parse_args.import_directory:
+                self.convert_files_in_folder(self._parse_args.import_directory)
+            else:
+                self.convert_csv_to_xlsx(self._import_file)
 
 if __name__ == "__main__":
     app = convertCvs()
