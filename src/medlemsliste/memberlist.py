@@ -3,7 +3,7 @@ import argparse
 import csv
 import openpyxl
 
-class convertCvs(object):
+class convert(object):
     _import_file = ''
     _export_file = ''
     _export_format = 'xlsx'
@@ -61,6 +61,24 @@ class convertCvs(object):
 
             wb.save(export_file + '.' + self._export_format)
 
+            self.convert_csv_to_vcf(file)
+
+    def convert_csv_to_vcf(self, file):
+        export_file = os.path.splitext(os.path.basename(file))[0] if self._export_file == '' else self._export_file
+        allvcf = open(export_file + '.vcf', 'w')
+        with open(file) as f:
+            reader = csv.reader(f, delimiter='\t')
+            for row in reader:
+                allvcf.write( 'BEGIN:VCARD' + "\n")
+                allvcf.write( 'VERSION:2.1' + "\n")
+                allvcf.write( 'N:' + row[1] + ';' + row[2] + "\n")
+                allvcf.write( 'FN:' + row[0] + ' ' + row[2] + ' ' + row[1] + "\n") #remember that lastname first
+                allvcf.write( 'ORG:' + 'Stram Kurs' + "\n")
+                allvcf.write( 'TEL;CELL:' + row[5] + "\n")
+                allvcf.write( 'EMAIL:' + row[4] + "\n")
+                allvcf.write( 'END:VCARD' + "\n")
+                allvcf.write( "\n")
+
     def run(self):
         if self._parse_args.import_file:
             self.set_import_file(self._parse_args.import_file)
@@ -78,5 +96,5 @@ class convertCvs(object):
                 self.convert_csv_to_xlsx(self._import_file)
 
 if __name__ == "__main__":
-    app = convertCvs()
+    app = convert()
     app.run()

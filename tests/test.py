@@ -7,8 +7,6 @@ import memberlist
 
 class Test():
 
-    
-
     def test_cvs_import(self):
-        app = memberlist.convertCvs()
+        app = memberlist.convert()
         app.run()
