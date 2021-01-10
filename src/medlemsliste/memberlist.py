@@ -73,7 +73,7 @@ class convert(object):
             for row in reader:
                 if i == 100:
                     count += 1
-                    allvcf = open(export_file + count + '.vcf', 'w')
+                    allvcf = open(export_file + str(count) + '.vcf', 'w')
                     i = 0
 
                 allvcf.write( 'BEGIN:VCARD' + "\n")
@@ -85,6 +85,7 @@ class convert(object):
                 allvcf.write( 'EMAIL:' + row[4] + "\n")
                 allvcf.write( 'END:VCARD' + "\n")
                 allvcf.write( "\n")
+                i += 1
 
     def run(self):
         if self._parse_args.import_file:
