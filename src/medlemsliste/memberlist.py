@@ -67,8 +67,15 @@ class convert(object):
         export_file = os.path.splitext(os.path.basename(file))[0] if self._export_file == '' else self._export_file
         allvcf = open(export_file + '.vcf', 'w')
         with open(file) as f:
+            i = 0
+            count = 0
             reader = csv.reader(f, delimiter='\t')
             for row in reader:
+                if i == 100:
+                    count += 1
+                    allvcf = open(export_file + count + '.vcf', 'w')
+                    i = 0
+
                 allvcf.write( 'BEGIN:VCARD' + "\n")
                 allvcf.write( 'VERSION:2.1' + "\n")
                 allvcf.write( 'N:' + row[1] + ';' + row[2] + "\n")
